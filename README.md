@@ -45,4 +45,6 @@ This is the code embedded into the Google Site for the Gantt charts that read of
       etc
       
 # Debugging
-  If you get this error: 
+  If you get this error: *null is not an object (evaluating 'this.Se.valueOf')×* this just means that there is nothing in the schedule for that team. (I.E. if programming is ot scheduled for anything this week, that will show up)
+  
+  If you get a null error or something like it: double check that all nessesary fields in the spreadsheet are filled out correctly, specifically that all dates are formatted correctly, and that all dependencies are an exact match to the corresponding Task IDs
