@@ -24,22 +24,23 @@ This is the code embedded into the Google Site for the Gantt charts that read of
   
 # How to format the spreadsheet 
   Team names should be consistent with these: (they are case sensitive)
+  `
     Mechanical
     Electrical
     Programming
-    PR
+    PR`
   You can have more team names then that, but they will only show up in the all teams graph
   
   
-  Task ID's matter for dependencies
+  Task ID's matter for dependencies`
     -Make sure that all of the dependencies are exactly the task ID's
     -To have multiple dependencies, list them separated by commas
-    -It is recommended that you follow a certain naming pattern
+    -It is recommended that you follow a certain naming pattern:
       Mechanical: M001
       Electrical: E001
       Programming: P001
       Public Relations: PR001
-      etc
+      etc`
       
 # Debugging
   If you get this error: 
