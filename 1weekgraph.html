@@ -1,0 +1,140 @@
+<html>
+<head>
+  <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+  <script type="text/javascript">
+    google.charts.load('current', {
+  callback: drawGID,
+  packages: ['gantt']
+});
+
+var spreadSheetLink = 'https://docs.google.com/spreadsheets/d/1gY2e4dzKEFDEfRJKCfcrbvZh_H2jMlwBjFSWB4AOi2w/edit?usp=sharing';
+
+function drawGID() {
+  var queryString = encodeURIComponent('SELECT A, B, C, D, E, F, G, H');
+
+  var query = new google.visualization.Query(
+      spreadSheetLink + queryString);
+  query.send(handleSampleDataQueryResponse);
+}
+
+function daysToMilliseconds(days) {
+      return days * 24 * 60 * 60 * 1000;
+    }
+
+function handleSampleDataQueryResponse(response) {
+  if (response.isError()) {
+    alert('Error in query: ' + response.getMessage() + ' ' + response.getDetailedMessage());
+    return;
+  }
+
+  var otherData = response.getDataTable();
+  var ganttData = new google.visualization.DataTable({cols: [
+    {type: 'string', label: 'Task Id'},
+    {type: 'string', label: 'Task Name'},
+    {type: 'string', label: 'People'},
+    {type: 'date', label: 'Start'},
+    {type: 'date', label: 'End'},
+    {type: 'number', label: 'Duration'},
+    {type: 'number', label: '% Complete'},
+    {type: 'string', label: 'Dependencies'}
+  ]});
+
+  var duration = 0;
+  var startDate = new Date(2018, 1, 1);
+  var endDate;
+  var today;
+  var nextWeek;
+
+   today = new Date().getTime();
+   nextWeek = new Date(new Date().getTime() + daysToMilliseconds(7)).getTime();
+
+  var dep = [];
+  var start = [];
+  var end = [];
+
+  for (var i = 0; i < otherData.getNumberOfRows(); i++)
+  {
+    if(otherData.getValue(i,5) == null)
+    {
+      start.push(otherData.getValue(i, 3).getTime());
+      end.push(otherData.getValue(i, 4).getTime());
+    }
+    else if(otherData.getValue(i, 3) == null)
+    {
+      start.push(otherData.getValue(i, 4).getTime() - daysToMilliseconds(otherData.getValue(i, 5)));
+      end.push(otherData.getValue(i, 4).getTime());
+    }
+    else
+    {
+      end.push(otherData.getValue(i, 3).getTime() + daysToMilliseconds(otherData.getValue(i, 5)));
+      start.push(otherData.getValue(i, 3).getTime());
+    }
+
+
+  	if(((start[i] >= today && start[i] < nextWeek) || (end[i] > today && end[i] <= nextWeek) || (start[i] <= today && end[i] >= nextWeek)))
+  	{
+    	dep.push(otherData.getValue(i, 0));
+    }
+
+  }
+
+
+
+  for (var i = 0; i < otherData.getNumberOfRows(); i++) {
+
+
+    if(((start[i] >= today && start[i] < nextWeek) || (end[i] > today && end[i] <= nextWeek) || (start[i] <= today && end[i] >= nextWeek))) //One week span
+    {
+    	var a = "";
+      var dependancies = otherData.getValue(i, 7);
+
+    	if(dependancies != null)
+      {
+        	for(var p = 0; p < dep.length; p++)
+            if(dependancies.indexOf(dep[p]) != -1)
+            {
+              a += dep[p];
+              a += ",";
+            }
+        a.substr(a.length - 1, 1);
+      }
+
+
+    	var start_ = start[i];
+      var end_ = end[i];
+
+
+
+    	if(start_ < today)
+      	start_ = today;
+
+      if(end_ > nextWeek)
+      	end_ = nextWeek;
+
+
+      ganttData.addRow([
+        otherData.getValue(i, 0),
+        otherData.getValue(i, 1),
+        otherData.getValue(i, 2),
+        new Date(start_),
+        new Date(end_),
+        otherData.getValue(i, 5),
+        null,
+        a
+      ]);
+    }
+  }
+
+  var options = {
+      height: 500
+  };
+
+  var chart = new google.visualization.Gantt(document.getElementById('chart_div'));
+  chart.draw(ganttData, options);
+}
+  </script>
+</head>
+<body>
+  <div id="chart_div"></div>
+</body>
+</html>
